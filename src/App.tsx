@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import PlanForm from '@/components/PlanForm';
+import type { PlanPreferences } from '@/components/PlanForm';
+import { generatePlanWithLLM } from '@/api/llm';
 
-function App() {
-  const [count, setCount] = useState(0)
+const Home = () => {
+  const [generatedPlan, setGeneratedPlan] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleFormSubmit = async (data: PlanPreferences) => {
+    setLoading(true);
+    const plan = await generatePlanWithLLM(data);
+    setGeneratedPlan(plan);
+    setLoading(false);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className='flex items-center justify-center min-h-screen'>
+      <div className="container p-4">
+        <PlanForm onSubmit={handleFormSubmit} />
 
-export default App
+        {loading && <p className="flex items-center justify-center mt-4 text-blue-600">Generando plan...</p>}
+
+        {generatedPlan && (
+          <div className="mt-6 bg-gray-100 p-4 rounded">
+            <h2 className="text-xl font-semibold mb-2">Tu plan de vida</h2>
+            <pre className="whitespace-pre-wrap text-black">{generatedPlan}</pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Home;
