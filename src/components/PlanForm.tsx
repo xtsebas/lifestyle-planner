@@ -6,6 +6,11 @@ export type PlanPreferences = {
     entrenamiento: string;
     hobbys: string;
     nutricion: string;
+    adjustment?: {
+        section: string;
+        original: string[];
+        suggestion: string;
+    };
 };
 
 type Props = {
