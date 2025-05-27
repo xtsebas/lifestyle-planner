@@ -1,25 +1,45 @@
 import type { PlanPreferences } from '@/components/PlanForm';
 
 export async function generatePlanWithLLM(data: PlanPreferences): Promise<string> {
-  // Esta función puede ser reemplazada por una llamada real a un modelo (como DeepSeek)
-  // Por ahora, retornamos una respuesta mock simulando la de un LLM
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(`
-        Plan Profesional:
-        - Trabajar como desarrollador full-stack especializado en IA.
-        - Aprender arquitectura de sistemas complejos.
+  const prompt = `
+Eres un asistente de estilo de vida. Crea un plan con las siguientes secciones:
+1. Plan Profesional
+2. Plan de Entrenamiento
+3. Plan de Hobbies
+4. Plan de Nutrición
 
-        Plan de Entrenamiento:
-        - Lunes y jueves: Calistenia.
-        - Martes y viernes: Cardio suave + movilidad.
+Datos:
+- Profesional: ${data.profesional}
+- Entrenamiento: ${data.entrenamiento}
+- Hobbys: ${data.hobbys}
+- Nutrición: ${data.nutricion}
+`;
 
-        Plan de Hobbies:
-        - Lectura de ciencia ficción, fotografía, ajedrez.
+    const payload = {
+    model: 'mistral',
+    messages: [{ role: 'user', content: prompt }],
+    stream: false
+    };
 
-        Plan de Nutrición:
-        - Dieta basada en plantas, alta en proteínas, 3 comidas y 2 snacks.
-      `);
-    }, 1000);
-  });
+    console.log('Enviando a Ollama:', payload);
+
+    const response = await fetch('http://127.0.0.1:11434/api/chat', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload),
+    });
+
+    const json = await response.json();
+
+    if (!response.ok || !json.message?.content) {
+        console.error('Respuesta de Ollama:', json);
+        throw new Error('Error generando el plan con Ollama');
+    }
+
+    console.log('Respuesta completa de Ollama:', json);
+
+    return json.message.content;
 }
