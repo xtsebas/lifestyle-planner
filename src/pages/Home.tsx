@@ -4,6 +4,7 @@ import type { PlanPreferences } from '@/components/PlanForm';
 import { generatePlanWithLLM } from '@/api/llm';
 import GeneratedPlan from '@/components/GeneratePlan';
 import { parseGeneratedPlan } from '@/utils/planParser';
+import FeedbackForm from '@/components/FeedbackForm';
 
 type Section = {
   title: string;
@@ -15,6 +16,7 @@ const Home = () => {
     const [sections, setSections] = useState<Section[]>([]);
     const [loading, setLoading] = useState(false);
     const [rawPlan, setRawPlan] = useState<string | null>(null);
+    const [sectionToAdjust, setSectionToAdjust] = useState<Section | null>(null);
 
     const handleFormSubmit = async (data: PlanPreferences) => {
         setLoading(true);
@@ -38,13 +40,53 @@ const Home = () => {
                         <h2 className="text-xl font-semibold mt-6 mb-2">Tu plan de vida</h2>
 
                         {sections.length > 0 ? (
-                        <GeneratedPlan sections={sections} />
-                        ) : (
-                        <div className="bg-gray-800 text-white p-4 rounded mt-4">
-                            <h3 className="font-semibold mb-2">Respuesta completa (sin formato):</h3>
-                            <pre className="whitespace-pre-wrap">{rawPlan}</pre>
-                        </div>
+                            <>
+                                <GeneratedPlan sections={sections} onAdjust={setSectionToAdjust} />
+                                {sectionToAdjust && (
+                                    <FeedbackForm
+                                        sectionTitle={sectionToAdjust.title}
+                                        originalContent={sectionToAdjust.items}
+                                        onSubmit={async (feedback) => {
+                                            setLoading(true);
+                                            const updated = await generatePlanWithLLM({
+                                            profesional: '',
+                                            entrenamiento: '',
+                                            hobbys: '',
+                                            nutricion: '',
+                                            adjustment: {
+                                                section: sectionToAdjust.title,
+                                                original: sectionToAdjust.items,
+                                                suggestion: feedback,
+                                            },
+                                            });
+
+                                            setSections(prev =>
+                                            prev.map(section =>
+                                                section.title === sectionToAdjust.title
+                                                ? {
+                                                    ...section,
+                                                    items: updated
+                                                        .split('\n')
+                                                        .map(line => line.replace(/^[-•]\s*/, '').trim())
+                                                        .filter(Boolean),
+                                                    }
+                                                : section
+                                            )
+                                            );
+
+                                            setLoading(false);
+                                            setSectionToAdjust(null);
+                                        }}
+                                    />
+                                )}
+                            </>
+                            ) : (
+                            <div className="bg-gray-800 text-white p-4 rounded mt-4">
+                                <h3 className="font-semibold mb-2">Respuesta completa (sin formato):</h3>
+                                <pre className="whitespace-pre-wrap">{rawPlan}</pre>
+                            </div>
                         )}
+
                     </>
                 )}
             </div>
