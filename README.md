@@ -1,54 +1,63 @@
-# React + TypeScript + Vite
+# 🧠 Lifestyle Plan Generator with LLMs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project allows users to generate a **custom lifestyle plan** using an LLM (Large Language Model). It supports:
 
-Currently, two official plugins are available:
+- Custom input for goals in **professional life**, **training**, **nutrition**, and **hobbies**
+- LLM-generated responses using **Ollama** locally
+- Real-time feedback and refinement of specific sections
+- Conversation history stored locally (prompt + response)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Requirements
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js >= 18
+- npm or pnpm
+- [Ollama](https://ollama.com/) installed and running
+- A supported model like `mistral` pulled using Ollama
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+# Install Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Start Ollama (runs on http://127.0.0.1:11434 by default)
+ollama serve
+
+# Pull a model (e.g., DeepSeek Coder)
+ollama pull mistral
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+# 🚀 Getting Started
+```bash
+npm install
+npm run dev
 ```
+Open your browser at http://localhost:5173
+
+
+# 🧩 Notes About LLM Models
+This project uses deepseek-coder via Ollama by default.
+We originally attempted to use ChatGPT and DeepSeek’s hosted APIs, but:
+ - DeepSeek does not currently offer an API key for their hosted models
+ - ChatGPT requires paid credits, and we exhausted the free quota
+
+# 📂 Project Structure
+```bash
+├── components/
+│   ├── PlanForm.tsx          # User input form
+│   ├── GeneratePlan.tsx      # Displays parsed plan
+│   ├── FeedbackForm.tsx      # Adjustments per section
+├── api/
+│   └── llm.ts                # LLM interaction logic
+├── utils/
+│   └── planParser.ts         # Extracts sections from text
+├── pages/
+│   └── Home.tsx              # Main page logic
+```
+
+# 📋 Features
+ - Interactive input form
+ - LLM integration (via Ollama)
+ - Plan parsing + display
+ - Section-specific feedback loop
+ - Local history tracking (stored in localStorage)
